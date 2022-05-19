@@ -1,0 +1,140 @@
+﻿<Window x:Class="ApdOkFP.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        FontSize="13" 
+        xmlns:local="clr-namespace:ApdOkFP"
+        mc:Ignorable="d"
+        Title="Apd Pulse Counter UI" Height="400" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <local:ConStateConverter x:Key="boolConConverter"/>
+    </Window.Resources>
+
+    <DockPanel>
+        <Label DockPanel.Dock="Top" Name="mainLabel"  
+        Content="Apd Pulse Counter Application"   
+        Width="300" Height="60" 
+        VerticalContentAlignment="Center"
+        FontSize="18" FontFamily="Georgia"  
+        FontWeight="Bold"/>
+        <DockPanel DockPanel.Dock="Top" KeyboardNavigation.TabNavigation="None">
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="8*" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0">
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="8*" />
+                            <ColumnDefinition Width="6*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="1">
+                            <Grid.ColumnDefinitions >
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column=" 0" Margin=" 10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row=" 0" VerticalAlignment="Center" HorizontalContentAlignment="Right" Content="QUENCH Duration"/>
+                                <Label Grid.Row=" 1" VerticalAlignment="Center" HorizontalContentAlignment="Right" Content="Wait Duration"/>
+                                <Label Grid.Row=" 2" VerticalAlignment="Center" HorizontalContentAlignment="Right" Content="RESET Duration"/>
+                                <Label Grid.Row=" 3" VerticalAlignment="Center" HorizontalContentAlignment="Right" Content="{Binding Path = DevID}"/>
+                                <Image Grid.Row =" 3" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                       Width="25" Margin="25 5 0 0"   
+                                       Source="{Binding Path=Connected, Converter={StaticResource boolConConverter}}"/>
+                            </Grid>
+                            <Grid Grid.Column=" 1" Margin=" 10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBox Grid.Row=" 0" Height=" 30" VerticalContentAlignment="Center" TextAlignment="Right" 
+                                         Text="{Binding Path=DurationQuench, Mode=TwoWay, ValidatesOnDataErrors=True}"
+                                         PreviewTextInput="PreviewTextInput"
+                                         local:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
+                                         />
+                                <TextBox Grid.Row=" 1" Height=" 30" VerticalContentAlignment="Center" TextAlignment="Right" 
+                                         Text="{Binding Path=DurationWait, Mode=TwoWay, ValidatesOnDataErrors=True}"
+                                         PreviewTextInput="PreviewTextInput"
+                                         local:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
+                                         />
+                                <TextBox Grid.Row=" 2" Height=" 30" VerticalContentAlignment="Center" TextAlignment="Right"  
+                                         PreviewTextInput="PreviewTextInput"
+                                         Text="{Binding Path=DurationReset, Mode=TwoWay, ValidatesOnDataErrors=True}"
+                                         local:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"
+                                         />
+                                <Label Grid.Row=" 3" VerticalAlignment="Center" HorizontalContentAlignment="Right" Content="{Binding Path=DevFwVersion}"/>
+                            </Grid>
+                            <Grid Grid.Column=" 2" Margin=" 10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row=" 0" VerticalAlignment="Center" Content="ns"/>
+                                <Label Grid.Row=" 1" VerticalAlignment="Center" Content="ns"/>
+                                <Label Grid.Row=" 2" VerticalAlignment="Center" Content="ns"/>
+                                <!--<Label Grid.Row=" 3" VerticalAlignment="Center" HorizontalContentAlignment="Right" Content="Model"/>-->
+                            </Grid>
+                        </Grid>
+                        <Grid Grid.Column="2">
+                            <Grid Margin=" 10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row=" 0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Grid.Column=" 0" VerticalAlignment="Center" HorizontalContentAlignment="Left" Content="Avalanche Counter"/>
+                                    <TextBox Grid.Column=" 1" Height=" 30" VerticalContentAlignment="Center" TextAlignment="Right" IsReadOnly="True" 
+                                             Text="{Binding Path=PulseCounts,Mode=OneWay}"/>
+                                </Grid>
+                                <ToggleButton Grid.Row="2" Height="35" Width="200" Content="Start / Stop"
+                                              Command="{Binding Path=StartStopCommand}"
+                                              CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
+                                
+                                <Button Grid.Row="1" Height="35" Width="200" Content=" Clear Counter"
+                                        Command="{Binding Path=ClearCounterCommand}"/>
+                                
+                                <Button Grid.Row="3" Height="35" Width="200" Content=" Connect"
+                                        Command="{Binding Path=ConnectCommand}"/>
+
+
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <Border Grid.Row=" 1" Padding=" 5" Margin="40 8" Background="GhostWhite" BorderBrush="Silver" BorderThickness="1" CornerRadius="5">
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width=" 2*"/>
+                            <ColumnDefinition Width="8*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" VerticalAlignment="Center" HorizontalContentAlignment="Center" Content="System Message"/>
+                        <TextBox Grid.Column=" 1" Height=" 30" VerticalContentAlignment="Center" TextAlignment="Left" IsReadOnly="True" Text="{Binding Path=SysMsg}"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </DockPanel>
+
+</Window>
