@@ -85,10 +85,23 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Label Grid.Row=" 0" VerticalAlignment="Center" Content="ns"/>
-                                <Label Grid.Row=" 1" VerticalAlignment="Center" Content="ns"/>
-                                <Label Grid.Row=" 2" VerticalAlignment="Center" Content="ns"/>
-                                <!--<Label Grid.Row=" 3" VerticalAlignment="Center" HorizontalContentAlignment="Right" Content="Model"/>-->
+                                <Label Grid.Row=" 0" VerticalAlignment="Center" Content="{Binding Path=TimeBaseUnit,Mode=OneWay}" Margin="1,14,-1,14"/>
+                                <Label Grid.Row=" 1" VerticalAlignment="Center" Content="{Binding Path=TimeBaseUnit, Mode=OneWay}"/>
+                                <Label Grid.Row=" 2" VerticalAlignment="Center" Content="{Binding Path=TimeBaseUnit, Mode=OneWay}"/>
+                                <RadioButton Grid.Row="3" x:Name = "rb1" Content = "μs" HorizontalAlignment = "Left"  
+                                            VerticalAlignment = "Top" 
+                                            Margin="0, 5"
+                                            GroupName = "timebase" 
+                                            Command="{Binding Path=ChooseTimeBaseCommand}"
+                                            CommandParameter="{Binding Path=Content, RelativeSource={RelativeSource Self}}"
+                                             />
+
+                                <RadioButton Grid.Row="3" x:Name = "rb2" Content = "ns" HorizontalAlignment = "Left"  
+                                             Margin="0, 5" VerticalAlignment = "Bottom"  
+                                             GroupName = "timebase"
+                                             Command="{Binding Path=ChooseTimeBaseCommand}"
+                                             CommandParameter="{Binding Path=Content, RelativeSource={RelativeSource Self}}"
+                                             />
                             </Grid>
                         </Grid>
                         <Grid Grid.Column="2">

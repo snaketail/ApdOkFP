@@ -29,6 +29,7 @@ namespace ApdOkFP
 
             var viewModel = new MainWindowViewModel();
             InitializeComponent();
+            rb1.IsChecked = true;
             DataContext = viewModel;
         }
 

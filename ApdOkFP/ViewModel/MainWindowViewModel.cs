@@ -30,11 +30,13 @@ namespace ApdOkFP.ViewModel
 
         bool _connected = false;
         string _sysMsg;
-        uint _pulseCounts;
+        string _timeBaseUnit;
+        UInt32 _pulseCounts;
 
         RelayCommand _connectCommand;
         RelayCommand _enableCounter;
         RelayCommand _clearCounter;
+        RelayCommand _chooseTimeBase;
 
         #endregion // Fields
 
@@ -46,6 +48,16 @@ namespace ApdOkFP.ViewModel
             {
                 _sysMsg = value;
                 base.OnPropertyChanged("SysMsg");
+            }
+        }
+
+        public string TimeBaseUnit 
+        {
+            get { return _timeBaseUnit; }
+            set
+            {
+                _timeBaseUnit = value;
+                base.OnPropertyChanged("TimeBaseUnit");
             }
         }
 
@@ -62,7 +74,7 @@ namespace ApdOkFP.ViewModel
         #endregion //MainWindow Properties
 
         #region App control Properties
-        public uint DurationQuench
+        public UInt32 DurationQuench
         {
             get { return _myFrontPanel.tQuench; }
             set
@@ -75,7 +87,7 @@ namespace ApdOkFP.ViewModel
                 log.Info(msg);
             }
         }
-        public uint DurationWait
+        public UInt32 DurationWait
         {
             get { return _myFrontPanel.tWait; }
             set
@@ -88,7 +100,7 @@ namespace ApdOkFP.ViewModel
                 log.Info(msg);
             }
         }
-        public uint DurationReset
+        public UInt32 DurationReset
         {
             get { return _myFrontPanel.tReset; }
             set
@@ -101,7 +113,7 @@ namespace ApdOkFP.ViewModel
                 log.Info(msg);
             }
         }
-        public uint PulseCounts 
+        public UInt32 PulseCounts 
         { 
             get
             {
@@ -156,8 +168,8 @@ namespace ApdOkFP.ViewModel
                 if (_clearCounter == null)
                 {
                     _clearCounter = new RelayCommand(
-                        param => this.SendSimAptPulse(),
-                        param => this.Connected
+                        param => this.Connect(),
+                        param => !(this.Connected)
                         );
                 }
                 return _clearCounter;
@@ -193,6 +205,20 @@ namespace ApdOkFP.ViewModel
             }
         }
 
+        public ICommand ChooseTimeBaseCommand
+        {
+            get
+            {
+                if (_chooseTimeBase ==null)
+                {
+                    _chooseTimeBase = new RelayCommand(
+                        param => this.chooseTimeBase(param),
+                        param => this.Connected
+                        );
+                }
+                return _chooseTimeBase;
+            }
+        }
         #endregion //Command Properties
 
         #region Constructor
@@ -202,7 +228,8 @@ namespace ApdOkFP.ViewModel
             _myFrontPanel = new OkFpFrontPanel();
             log.Info("application Initialized.");
             SysMsg = "Application Initilized successfully";
-            Connect();
+            TimeBaseUnit = "μs";
+            //Connect();
         }
         #endregion //Constructor
 
@@ -231,11 +258,11 @@ namespace ApdOkFP.ViewModel
                 SysMsg = "Device Opened Successful";
                 // Setup the PLL from defaults.
                 m_dev.LoadDefaultPLLConfiguration();
-                m_dev.ConfigureFPGA(@"C:\temp\FPGA\slow\slowSim.bit");
+                m_dev.ConfigureFPGA(@"C:\temp\FPGA\fast\qDS\fastHW.bit");
                 SysMsg = "FPGA bit file download successful";
                 log.Info("FPGA hardware initialized successfully");
                 Connected = true;
-
+                chooseTimeBase("μs");
                 SendQuenchDuration();
                 SendWaitDuration();
                 SendResetDuration();
@@ -253,12 +280,14 @@ namespace ApdOkFP.ViewModel
                 log.Debug("Enable Counter");
                 m_dev.SetWireInValue(0x03, 0x01);
                 m_dev.UpdateWireIns();
+                SysMsg = "Counter Started";
             }
             else
             {
                 log.Debug("Disable Counter");
                 m_dev.SetWireInValue(0x03, 0x00);
                 m_dev.UpdateWireIns();
+                SysMsg = "Counter Stopped";
             }
 ;
         }
@@ -278,13 +307,43 @@ namespace ApdOkFP.ViewModel
         {
             log.Debug("Send Clear Counter");
             m_dev.ActivateTriggerIn(0x40, 0);
+            SysMsg = "Counter Cleared";
         }
         #endregion //Update Quench Number   
+
+        #region Choose time base
+        void chooseTimeBase(object param)
+        {
+            if (param.ToString() == "ns")
+            {
+                //send FPGA ns command
+                this.TimeBaseUnit = "ns";
+                log.Debug("Set time based to nano seconds");
+                SysMsg = "Set time based to nano seconds";
+                m_dev.ActivateTriggerIn(0x40, 2);
+                SendQuenchDuration();
+                SendWaitDuration();
+                SendResetDuration();
+            }
+            else
+            {
+                //send FPGA μs command
+                this.TimeBaseUnit = "μs";
+                log.Debug("Set time based to micro seconds");
+                SysMsg = "Set time based to micro seconds";
+                m_dev.ActivateTriggerIn(0x40, 3);
+                SendQuenchDuration();
+                SendWaitDuration();
+                SendResetDuration();
+            }
+        }
+
+        #endregion
 
         #region SendQuenchDuration
         void SendQuenchDuration()
         {
-            uint tick;
+            UInt32 tick;
             tick = Convert.ToUInt32(Math.Ceiling((Convert.ToDouble(DurationQuench) / 5)));
             m_dev.SetWireInValue(0x00, tick);
             m_dev.UpdateWireIns();
@@ -294,7 +353,7 @@ namespace ApdOkFP.ViewModel
         #region SendWaitDuration
         void SendWaitDuration()
         {
-            uint tick;
+            UInt32 tick;
             tick = Convert.ToUInt32(Math.Ceiling((Convert.ToDouble(DurationWait) / 5)));
             m_dev.SetWireInValue(0x01, tick);
             m_dev.UpdateWireIns();
@@ -312,7 +371,7 @@ namespace ApdOkFP.ViewModel
         #region SendResetDuration
         void SendResetDuration()
         {
-            uint tick;
+            UInt32 tick;
             tick = Convert.ToUInt32(Math.Ceiling((Convert.ToDouble(DurationReset) / 5)));
             m_dev.SetWireInValue(0x02, tick);
             m_dev.UpdateWireIns();
@@ -361,7 +420,7 @@ namespace ApdOkFP.ViewModel
         }
         #endregion //validate if input is uint and not equal to 0
 
-        string ValidateInt(uint number)
+        string ValidateInt(UInt32 number)
         {
             if ((number % 5) != 0)
             {

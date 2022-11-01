@@ -8,10 +8,10 @@ namespace ApdOkFP.Model
 {
     public class OkFpFrontPanel
     {
-        public uint tQuench;
-        public uint tWait;
-        public uint tReset;
-        public uint numberOfPulse;
+        public UInt32 tQuench;
+        public UInt32 tWait;
+        public UInt32 tReset;
+        public UInt32 numberOfPulse;
 
         public OkFpFrontPanel()
         {
